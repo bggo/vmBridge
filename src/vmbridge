@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ $1 = "on" ]; then
+	echo "Turning Bridge ........ On"
+	iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
+	sysctl net.ipv4.ip_forward=1
+else
+	if [ $1 = "off" ]; then
+		echo "Turning Bridge ........ Off"
+		#Find a way to drop only the rule inserted!
+		iptables -t nat --flush
+		sysctl net.ipv4.ip_forward=0
+	else
+		echo "Usage : /etc/init.d/vmbridge <on/off>"
+	fi
+fi
+
