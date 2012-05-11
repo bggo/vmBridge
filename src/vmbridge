@@ -1,17 +1,39 @@
 #!/bin/bash
 
-if [ $1 = "on" ]; then
+check_root() {
+
+if [ $(id -u) -ne 0 ]; then
+	echo "Not Root!!!!"
+	exit 1
+fi
+
+}
+
+turn_on() {
 	echo "Turning Bridge ........ On"
 	iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
 	sysctl net.ipv4.ip_forward=1
-else
-	if [ $1 = "off" ]; then
-		echo "Turning Bridge ........ Off"
-		#Find a way to drop only the rule inserted!
-		iptables -t nat --flush
-		sysctl net.ipv4.ip_forward=0
-	else
-		echo "Usage : /etc/init.d/vmbridge <on/off>"
-	fi
-fi
+}
+
+turn_off() {
+	echo "Turning Bridge ........ Off"
+	#Find a way to drop only the rule inserted!
+	iptables -t nat --flush
+	sysctl net.ipv4.ip_forward=0
+}
+
+case "$1" in 
+	on)
+		check_root
+		turn_on
+	;;
+	off)
+		check_root
+		turn_off
+	;;
+	*)
+		echo "Usage: /etc/init.d/vmBridge {on|off}"
+	;;
+esac
+
 
